@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Renegade Racing League - Nahrát výsledky">
+    <title>RRL 2026 - Nahrát CSV</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Zvýraznění drag and drop zóny při přetažení */
+        .upload-zone.dragover {
+            border-color: var(--f1-red) !important;
+            background: rgba(225, 6, 0, 0.1) !important;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <img src="img/logo.png" alt="RRL Logo">
+                <span>RRL 2026</span>
+            </div>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul id="nav-menu">
+                <li><a href="index.html">Tabulka</a></li>
+                <li><a href="results.html">Výsledky</a></li>
+                <li><a href="drivers.html">Jezdci</a></li>
+                <li><a href="register.html">Přihláška</a></li>
+                <li><a href="upload.html" class="active">Nahrát CSV</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Nahrát Výsledky</h1>
+            <p>Nahrajte CSV soubor s výsledky session z F1 25</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <h2 class="mb-2">Nahrát CSV Soubor</h2>
+
+                <!-- Upload Zóna -->
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-icon">📄</div>
+                    <h3>Přetáhněte sem CSV soubor</h3>
+                    <p class="text-muted">nebo klikněte pro výběr souboru</p>
+                    <input type="file" id="file-input" accept=".csv" style="display: none;">
+                </div>
+
+                <!-- Název Závodu -->
+                <div class="form-group mt-2" id="race-name-group" style="display: none;">
+                    <label class="form-label">Název Závodu</label>
+                    <input type="text" id="race-name" class="form-input" placeholder="např. Bahrain GP, Monaco GP">
+                </div>
+
+                <!-- Náhled -->
+                <div id="preview" style="display: none; margin-top: 1.5rem;">
+                    <h3 class="mb-1">Náhled dat</h3>
+                    <div class="card"
+                        style="background: var(--bg-secondary); max-height: 400px; overflow-y: auto; padding: 0;">
+                        <div id="preview-content"></div>
+                    </div>
+
+                    <button id="import-btn" class="btn btn-primary mt-2" style="width: 100%;">
+                        Importovat Výsledky
+                    </button>
+                </div>
+
+                <!-- Úspěch -->
+                <div id="success-message"
+                    style="display: none; margin-top: 1.5rem; padding: 1rem; background: rgba(0, 255, 100, 0.1); border: 1px solid rgba(0, 255, 100, 0.3); border-radius: 12px; text-align: center;">
+                    <h3 style="color: #00FF64; margin: 0;">✓ Závod úspěšně importován!</h3>
+                    <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary);">Tabulka pořadí byla aktualizována.
+                    </p>
+                    <a href="results.html" class="btn btn-secondary mt-1">Zobrazit Výsledky</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { addRaceFromCSV, validateCSV, extractRaceMetadata } from './js/app.js';
+
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+        const previewContent = document.getElementById('preview-content');
+        const raceNameGroup = document.getElementById('race-name-group');
+        const raceNameInput = document.getElementById('race-name');
+        const importBtn = document.getElementById('import-btn');
+        const successMessage = document.getElementById('success-message');
+
+        let currentFile = null;
+        let currentFileContent = null;
+
+        // Kliknutí pro výběr
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Drag & drop události - Global Prevention
+        window.addEventListener('dragenter', preventDefaults, false);
+        window.addEventListener('dragover', preventDefaults, false);
+        window.addEventListener('dragleave', preventDefaults, false);
+        window.addEventListener('drop', preventDefaults, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Visual feedback on drop zone
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => {
+                uploadZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => {
+                uploadZone.classList.remove('dragover');
+            }, false);
+        });
+
+        // Handle drop
+        uploadZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }, false);
+
+        // Změna v inputu
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                alert('Prosím nahrajte soubor ve formátu CSV.');
+                return;
+            }
+
+            currentFile = file;
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                currentFileContent = e.target.result;
+                const validation = validateCSV(currentFileContent);
+                if (!validation.valid) {
+                    alert('Chyba v CSV: ' + validation.error);
+                    return;
+                }
+                showPreview();
+            };
+
+            reader.onerror = () => {
+                alert('Chyba při čtení souboru.');
+            };
+
+            reader.readAsText(file);
+        }
+
+        function showPreview() {
+            const lines = currentFileContent.split('\n').filter(line => line.trim());
+            const metadata = extractRaceMetadata(currentFile.name);
+
+            raceNameInput.value = `Závod ${metadata.date}`;
+
+            let html = '<table class="standings-table" style="font-size: 0.8rem; margin: 0;">';
+            html += '<thead><tr>';
+
+            const header = lines[0].split(',').map(h => h.replace(/"/g, ''));
+            header.forEach(h => {
+                html += `<th style="padding: 0.5rem;">${h}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            for (let i = 1; i < Math.min(6, lines.length); i++) {
+                const cells = lines[i].split(',').map(c => c.replace(/"/g, ''));
+                if (cells.length >= 2) {
+                    html += '<tr>';
+                    cells.forEach(cell => {
+                        html += `<td style="padding: 0.5rem;">${cell}</td>`;
+                    });
+                    html += '</tr>';
+                }
+            }
+
+            html += '</tbody></table>';
+
+            if (lines.length > 6) {
+                html += `<p class="text-muted text-center p-1" style="font-size: 0.8rem;">...a ${lines.length - 6} dalších řádků</p>`;
+            }
+
+            previewContent.innerHTML = html;
+            preview.style.display = 'block';
+            raceNameGroup.style.display = 'block';
+
+            // Scroll to preview
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        importBtn.addEventListener('click', async () => {
+            const raceName = raceNameInput.value.trim();
+            if (!raceName) {
+                alert('Prosím zadejte název závodu.');
+                return;
+            }
+
+            const originalText = importBtn.textContent;
+            importBtn.textContent = 'Nahrávám...';
+            importBtn.disabled = true;
+
+            try {
+                await addRaceFromCSV(currentFileContent, currentFile.name, raceName);
+                preview.style.display = 'none';
+                raceNameGroup.style.display = 'none';
+                uploadZone.style.display = 'none';
+                successMessage.style.display = 'block';
+            } catch (error) {
+                alert('Chyba při importu: ' + error.message);
+                importBtn.textContent = originalText;
+                importBtn.disabled = false;
+            }
+        });
+    </script>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('nav-menu').classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>

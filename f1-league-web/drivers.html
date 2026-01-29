@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Renegade Racing League - Jezdci">
+    <title>RRL 2026 - Jezdci</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <img src="img/logo.png" alt="RRL Logo">
+                <span>RRL 2026</span>
+            </div>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul id="nav-menu">
+                <li><a href="index.html">Tabulka</a></li>
+                <li><a href="results.html">Výsledky</a></li>
+                <li><a href="drivers.html" class="active">Jezdci</a></li>
+                <li><a href="register.html">Přihláška</a></li>
+                <li><a href="upload.html">Nahrát CSV</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Jezdci</h1>
+            <p>Všichni registrovaní jezdci Renegade Racing League</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div id="driver-list"></div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { renderDriverList } from './js/app.js';
+        renderDriverList('driver-list');
+    </script>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('nav-menu').classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>

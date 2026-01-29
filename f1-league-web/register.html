@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Renegade Racing League - Dashboard">
+    <title>RRL 2026 - Můj Profil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .discord-btn {
+            background-color: #5865F2;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .discord-btn:hover {
+            background-color: #4752C4;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <img src="img/logo.png" alt="RRL Logo" onerror="this.style.display='none'">
+                <span>RRL 2026</span>
+            </div>
+            <!-- Menu toggle -->
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul id="nav-menu">
+                <li><a href="index.html">Tabulka</a></li>
+                <li><a href="results.html">Výsledky</a></li>
+                <li><a href="drivers.html">Jezdci</a></li>
+                <li><a href="register.html" class="active">Můj Profil</a></li>
+                <li><a href="upload.html">Nahrát CSV</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Profil Jezdce</h1>
+            <p>Spravuj svou registraci a tým</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="card" style="max-width: 600px; margin: 0 auto; text-align: center;">
+
+                <!-- Loading State -->
+                <div id="loading" class="text-center">
+                    <p>Načítám...</p>
+                </div>
+
+                <!-- Unauthenticated State -->
+                <div id="login-section" style="display: none;">
+                    <h2>Přihlášení</h2>
+                    <p class="mb-2">Pro registraci do ligy se musíš přihlásit přes Discord.</p>
+                    <a href="/auth/discord" class="discord-btn">
+                        <img src="https://assets-global.website-files.com/6257adef93867e56f84d3092/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
+                            width="24" alt="Discord">
+                        Přihlásit přes Discord
+                    </a>
+                </div>
+
+                <!-- Authenticated State (Form) -->
+                <div id="profile-section" style="display: none; text-align: left;">
+                    <div class="user-header mb-2"
+                        style="display: flex; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <img id="user-avatar" src="" alt="Avatar"
+                            style="width: 50px; height: 50px; border-radius: 50%;">
+                        <div>
+                            <h3 id="user-name" style="margin: 0;">Username</h3>
+                            <a href="/auth/logout" style="color: var(--accent-red); font-size: 0.9rem;">Odhlásit se</a>
+                        </div>
+                    </div>
+
+                    <form id="registration-form">
+                        <div class="form-group">
+                            <label class="form-label">Vyber Ligu *</label>
+                            <select id="league" class="form-select" required onchange="updateLeagueInfo(this.value)">
+                                <option value="Main">🏆 Main League</option>
+                                <option value="Academy">🎓 Academy</option>
+                            </select>
+                            <p id="league-info" class="text-muted mt-1" style="font-size: 0.9rem;">
+                                Hlavní liga pro zkušené jezdce na plný úvazek.
+                            </p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">EA ID / Herní Nick *</label>
+                            <input type="text" id="ea-id" class="form-input" placeholder="Tvé EA/F1 herní ID" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Preferovaný Tým</label>
+                            <select id="team" class="form-select">
+                                <option value="">Vyber si tým (volitelné)</option>
+                                <option value="Scuderia Ferrari HP">Scuderia Ferrari HP</option>
+                                <option value="McLaren">McLaren</option>
+                                <option value="Red Bull">Red Bull Racing</option>
+                                <option value="Mercedes-AMG Petronas">Mercedes-AMG Petronas</option>
+                                <option value="Aston Martin">Aston Martin</option>
+                                <option value="Alpine">Alpine</option>
+                                <option value="Williams">Williams</option>
+                                <option value="Visa Cash App Racing Bulls">Visa Cash App Racing Bulls</option>
+                                <option value="Haas">Haas F1 Team</option>
+                                <option value="KICK Sauber">KICK Sauber</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Startovní Číslo (volitelné)</label>
+                            <input type="number" id="racing-number" class="form-input" placeholder="1-99" min="1"
+                                max="99">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tvé zkušenosti (simracing bio)</label>
+                            <textarea id="bio" class="form-textarea"
+                                placeholder="Napiš nám o svých zkušenostech..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            Uložit Profil
+                        </button>
+                    </form>
+
+                    <div id="status-message" class="mt-2"
+                        style="display: none; padding: 1rem; border-radius: 8px; text-align: center;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('nav-menu').classList.toggle('active');
+        }
+
+        window.updateLeagueInfo = (val) => {
+            const info = document.getElementById('league-info');
+            info.textContent = val === 'Main'
+                ? 'Hlavní liga pro zkušené jezdce na plný úvazek.'
+                : 'Akademie pro nováčky a rozvoj talentů.';
+        };
+
+        // Check Auth Status on Load
+        fetch('/api/user')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.authenticated) {
+                    showProfile(data.user);
+                } else {
+                    document.getElementById('login-section').style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('loading').textContent = 'Chyba připojení k serveru.';
+            });
+
+        function showProfile(user) {
+            document.getElementById('profile-section').style.display = 'block';
+            document.getElementById('user-name').textContent = user.global_name || user.username;
+            document.getElementById('user-avatar').src = 'https://cdn.discordapp.com/avatars/' + user.id + '/' + user.avatar + '.png';
+
+            // Load existing data if any (TODO: Implement getPlayer endpoint)
+        }
+
+        document.getElementById('registration-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Ukládám...';
+            btn.disabled = true;
+
+            const data = {
+                league: document.getElementById('league').value,
+                ea_id: document.getElementById('ea-id').value,
+                team: document.getElementById('team').value,
+                racing_number: document.getElementById('racing-number').value,
+                bio: document.getElementById('bio').value
+            };
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+
+                const status = document.getElementById('status-message');
+                status.style.display = 'block';
+
+                if (res.ok) {
+                    status.style.backgroundColor = 'rgba(0, 255, 100, 0.1)';
+                    status.style.color = '#00FF64';
+                    status.textContent = '✅ Profil úspěšně uložen!';
+                } else {
+                    throw new Error(result.error || 'Chyba serveru');
+                }
+            } catch (err) {
+                const status = document.getElementById('status-message');
+                status.style.display = 'block';
+                status.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+                status.style.color = '#ff4d4d';
+                status.textContent = '❌ ' + err.message;
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

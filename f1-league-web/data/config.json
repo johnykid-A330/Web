@@ -1,0 +1,19 @@
+{
+    "leagueName": "Renegade Racing League",
+    "season": "Season 1",
+    "pointsSystem": [
+        25,
+        18,
+        15,
+        12,
+        10,
+        8,
+        6,
+        4,
+        2,
+        1
+    ],
+    "fastestLapBonus": 1,
+    "fastestLapMinPosition": 10,
+    "adminPassword": "adminteamgoat"
+}

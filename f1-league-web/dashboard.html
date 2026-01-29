@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 League Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-flag-checkered logo-icon"></i>
+                <h2>F1 League</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="overview">
+                    <i class="fa-solid fa-chart-pie"></i> Přehled
+                </a>
+                <a href="#" class="nav-item" data-tab="drivers">
+                    <i class="fa-solid fa-users"></i> Jezdci
+                </a>
+                <a href="#" class="nav-item" data-tab="races">
+                    <i class="fa-solid fa-calendar-day"></i> Závody
+                </a>
+                <a href="#" class="nav-item" data-tab="penalties">
+                    <i class="fa-solid fa-gavel"></i> Penalizace
+                </a>
+                <a href="#" class="nav-item" data-tab="settings">
+                    <i class="fa-solid fa-gear"></i> Nastavení
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Admin" id="adminAvatar">
+                    <span id="adminName">Admin</span>
+                </div>
+                <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="pageTitle">Přehled</h1>
+                <div class="actions">
+                    <button class="btn btn-primary" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                </div>
+            </header>
+
+            <div id="contentArea">
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="icon-box blue"><i class="fa-solid fa-users"></i></div>
+                            <div class="stat-info">
+                                <h3>Celkem Jezdců</h3>
+                                <p id="totalDrivers">-</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon-box green"><i class="fa-solid fa-flag"></i></div>
+                            <div class="stat-info">
+                                <h3>Odjeté Závody</h3>
+                                <p id="completedRaces">-</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon-box red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="stat-info">
+                                <h3>Aktivní Penalizace</h3>
+                                <p id="activePenalties">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-row">
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-trophy"></i> TOP 5 Jezdců</h3>
+                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Pozice</th>
+                                        <th>Jezdec</th>
+                                        <th>Body</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topDriversTable">
+                                    <tr>
+                                        <td colspan="3">Načítání...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-clock-rotate-left"></i> Poslední Aktivita</h3>
+                            </div>
+                            <ul class="activity-list" id="activityList">
+                                <li>Načítání...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Drivers Tab -->
+                <div id="drivers" class="tab-content" style="display: none;">
+                    <div class="card-header-actions">
+                        <input type="text" id="driverSearch" placeholder="Hledat jezdce..." class="search-input">
+                        <button class="btn btn-secondary" onclick="exportData()"><i class="fa-solid fa-download"></i>
+                            Export CSV</button>
+                    </div>
+                    <div class="content-card full-width">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Jméno</th>
+                                    <th>Tým</th>
+                                    <th>Role</th>
+                                    <th>Body</th>
+                                    <th>P. Body</th>
+                                    <th>Akce</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allDriversTable">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Races Tab (Placeholder) -->
+                <div id="races" class="tab-content" style="display: none;">
+                    <div class="content-card">
+                        <h3>Správa Závodů</h3>
+                        <p>Brzy: Přidávání výsledků, kalendář.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="editDriverModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Upravit Jezdce</h2>
+            <form id="editDriverForm">
+                <input type="hidden" id="editDriverId">
+                <div class="form-group">
+                    <label>Jméno</label>
+                    <input type="text" id="editDriverName" required>
+                </div>
+                <div class="form-group">
+                    <label>Trestné Body</label>
+                    <input type="number" id="editDriverPenaltyPoints">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Uložit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

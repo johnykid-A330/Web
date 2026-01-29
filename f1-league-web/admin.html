@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RRL Admin - Lineup Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <img src="img/logo.png" alt="RRL Logo" onerror="this.style.display='none'">
+                <span>Admin Panel</span>
+            </div>
+            <ul id="nav-menu">
+                <li><a href="index.html">Zpět na web</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="mb-2">Správa Line-upu</h1>
+
+            <!-- Login Form -->
+            <div id="login-form" class="card" style="max-width: 400px; margin: 0 auto;">
+                <h3 class="mb-1">Admin Login</h3>
+                <div class="form-group">
+                    <input type="password" id="admin-password" class="form-input" placeholder="Heslo">
+                </div>
+                <button onclick="login()" class="btn btn-primary" style="width: 100%;">Přihlásit</button>
+                <p id="login-error" class="text-danger mt-1"></p>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="admin-dashboard" style="display: none;">
+                <div class="actions mb-2">
+                    <button onclick="loadPlayers()" class="btn btn-secondary">Aktualizovat seznam</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table" id="players-table">
+                        <thead>
+                            <tr>
+                                <th>Jméno (Discord)</th>
+                                <th>Liga</th>
+                                <th>Tým</th>
+                                <th>Číslo</th>
+                                <th>Akce</th>
+                            </tr>
+                        </thead>
+                        <tbody id="players-list">
+                            <!-- Players rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const TEAMS = [
+            "Scuderia Ferrari HP", "McLaren", "Red Bull", "Mercedes-AMG Petronas",
+            "Aston Martin", "Alpine", "Williams", "Visa Cash App Racing Bulls", "Haas", "KICK Sauber"
+        ];
+
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/admin/check');
+                const data = await res.json();
+                if (data.isAdmin) {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function login() {
+            const password = document.getElementById('admin-password').value;
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    document.getElementById('login-error').textContent = 'Chybné heslo';
+                }
+            } catch (e) {
+                document.getElementById('login-error').textContent = 'Chyba serveru';
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
+            loadPlayers();
+        }
+
+        async function loadPlayers() {
+            const res = await fetch('/api/players');
+            const players = await res.json();
+            renderPlayers(players);
+        }
+
+        function renderPlayers(players) {
+            const tbody = document.getElementById('players-list');
+            tbody.innerHTML = '';
+
+            players.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${p.discord_name} <small class="text-muted">(${p.ea_id})</small></td>
+                    <td>
+                        <select class="form-select form-select-sm" id="league-${p.id}">
+                            <option value="Main" ${p.league === 'Main' ? 'selected' : ''}>Main</option>
+                            <option value="Academy" ${p.league === 'Academy' ? 'selected' : ''}>Academy</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm" id="team-${p.id}">
+                            <option value="Bez týmu">Bez týmu</option>
+                            ${TEAMS.map(t => `<option value="${t}" ${t === p.team ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-input form-input-sm" id="num-${p.id}" value="${p.racing_number || ''}" style="width: 60px;">
+                    </td>
+                    <td>
+                        <button onclick="savePlayer('${p.id}')" class="btn btn-sm btn-primary">Uložit</button>
+                        <button onclick="deletePlayer('${p.id}')" class="btn btn-sm btn-danger">Odstranit</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function savePlayer(id) {
+            const updates = {
+                league: document.getElementById(`league-${id}`).value,
+                team: document.getElementById(`team-${id}`).value,
+                racing_number: document.getElementById(`num-${id}`).value
+            };
+
+            try {
+                const res = await fetch('/api/admin/save_player', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, ...updates })
+                });
+                if (res.ok) alert('Uloženo!');
+                else alert('Chyba při ukládání');
+            } catch (e) { alert('Chyba serveru'); }
+        }
+
+        async function deletePlayer(id) {
+            if (!confirm('Opravdu smazat tohoto jezdce?')) return;
+            try {
+                await fetch('/api/admin/delete_player', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                loadPlayers();
+            } catch (e) { alert('Chyba serveru'); }
+        }
+
+        checkAuth();
+    </script>
+</body>
+
+</html>
