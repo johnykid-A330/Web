@@ -1,0 +1,10 @@
+[12-Jan-2026 21:31:09 UTC] PHP Fatal error:  Uncaught Error: Class "finfo" not found in C:\Projects\standingsbot\views\upload.php:25
+Stack trace:
+#0 C:\Projects\standingsbot\index.php(175): include()
+#1 {main}
+  thrown in C:\Projects\standingsbot\views\upload.php on line 25
+[12-Jan-2026 21:31:36 UTC] PHP Fatal error:  Uncaught Error: Class "finfo" not found in C:\Projects\standingsbot\views\upload.php:25
+Stack trace:
+#0 C:\Projects\standingsbot\index.php(175): include()
+#1 {main}
+  thrown in C:\Projects\standingsbot\views\upload.php on line 25

@@ -1,0 +1,97 @@
+"""
+Configuration file for the Discord League Bot
+"""
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Bot token from Discord Developer Portal
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+
+# Channel where registration embed will be posted (přihlášky na role)
+REGISTRATION_CHANNEL_ID = 1460350268519481404
+
+# Channel where admin notifications will be sent
+ADMIN_CHANNEL_ID = 1460362548762247330
+
+# Channel IDs
+ATTENDANCE_CHANNEL_ID = 1463998898384142340  # Sestavy (Lineups)
+INCIDENT_REPORT_CHANNEL_ID = 1464333840536436820  # Hlášení incidentů (Admin view)
+MIA_DOCS_CHANNEL_ID = 1460722063210709082  # Verdikty (Public decision post)
+STANDINGS_CHANNEL_ID = 1460722390588723271  # Championship Standings (Modul 5)
+RESULTS_CHANNEL_ID = 1463998898384142340 # Sestavy
+
+# Roles to ping for MIA Verdicts (Posted in public channel)
+MIA_PING_ROLES = [1460693651872026821, 1460693696143167663, 1460675411238457491]
+
+# Roles to ping for NEW Incident Reports (Marshals - Admin View)
+MIA_REPORT_PING_ROLES = [1460693651872026821, 1460693696143167663, 1460675411238457491]
+
+# Role ID to automatically assign to new members
+AUTO_JOIN_ROLE_ID = os.getenv("AUTO_JOIN_ROLE_ID")
+
+# Advanced League Role IDs
+ROLE_DRIVER = os.getenv("ROLE_DRIVER")
+ROLE_STEWARD = os.getenv("ROLE_STEWARD")
+ROLE_COMMENTATOR = os.getenv("ROLE_COMMENTATOR")
+
+ROLE_DRIVER_APPLICANT = os.getenv("ROLE_DRIVER_APPLICANT")
+ROLE_STEWARD_APPLICANT = os.getenv("ROLE_STEWARD_APPLICANT")
+ROLE_COMMENTATOR_APPLICANT = os.getenv("ROLE_COMMENTATOR_APPLICANT")
+
+# Admin role to ping
+ROLE_ADMIN_ID = os.getenv("ROLE_ADMIN_ID")
+
+# Trial / Intermediate Roles
+ROLE_UNDER_REVIEW = os.getenv("ROLE_UNDER_REVIEW")
+ROLE_UNDER_TESTING = os.getenv("ROLE_UNDER_TESTING")
+
+# ═══════════════════════════════════════════════════════════════
+# MODULE 1: PENALTY SYSTEM
+# ═══════════════════════════════════════════════════════════════
+PENALTY_POINTS_LIMIT = 18  # Maximální povolené trestné body
+PENALTY_AUTO_BAN = True  # Automaticky přidělit banned role při překročení
+ROLE_BANNED_DRIVER = "1465093640677363775"  # Role pro zabanované jezdce
+
+# ═══════════════════════════════════════════════════════════════
+# MODULE 3: RESERVE PRIORITY
+# ═══════════════════════════════════════════════════════════════
+ROLE_RESERVE = "1465093808612970527"  # Role ID pro náhradníky
+MAX_MAIN_GRID_SIZE = 20  # Maximální kapacita hlavního gridu
+
+# ═══════════════════════════════════════════════════════════════
+# MODULE 5: RACE RESULTS & STANDINGS
+# ═══════════════════════════════════════════════════════════════
+POINTS_SYSTEM = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1]  # Body pro pozice 1-10
+FASTEST_LAP_BONUS = 1  # Extra bod za nejrychlejší kolo
+FASTEST_LAP_MIN_POSITION = 10  # Fastest lap bonus pouze pokud dojede v top 10
+STANDINGS_MESSAGE_ID = None  # ID standings embedu (bot automaticky uloží)
+
+# ═══════════════════════════════════════════════════════════════
+# MODULE 6: ACTIVITY TRACKING
+# ═══════════════════════════════════════════════════════════════
+INACTIVITY_THRESHOLD = 3  # Počet vynechaných závodů = neaktivní
+AUTO_REMOVE_INACTIVE_ROLE = False  # Automaticky odebrat driver role?
+
+# ═══════════════════════════════════════════════════════════════
+# MODULE 7: DYNAMIC RACE COUNTDOWN
+# ═══════════════════════════════════════════════════════════════
+NEXT_RACE_NAME = "Bahrain GP"  # Název příštího závodu
+NEXT_RACE_TIMESTAMP = None  # Unix timestamp (nastavíš přes /rc-set-next-race)
+RACE_DAY_DEFAULT = "Sobota"  # Default den závodu
+RACE_TIME_DEFAULT = "18:00"  # Default čas závodu
+
+# League roles for the dropdown
+LEAGUE_ROLES = [
+    {"name": "⚖️ Steward", "value": "steward", "description": "Rozhodování incidentů a kontrola pravidel"},
+    {"name": "🎙️ Komentátor", "value": "commentator", "description": "Živý komentář a vysílání závodů"},
+    {"name": "🏎️ Jezdec", "value": "driver", "description": "Závodění na trati v našich ligách"},
+]
+
+# Embed colors
+EMBED_COLOR_PRIMARY = 0x5865F2  # Discord Blurple
+EMBED_COLOR_SUCCESS = 0x57F287  # Green
+EMBED_COLOR_ERROR = 0xED4245    # Red
+

@@ -1,0 +1,23 @@
+{
+    "players": {
+        "123456789": {
+            "id": "123456789",
+            "discord_id": "123456789",
+            "username": "TestDriver",
+            "role": "driver",
+            "team": "ferrari",
+            "total_points": 25,
+            "answers": {
+                "team": "ferrari",
+                "ea_id": "TestDriver_EA"
+            },
+            "penalties": {
+                "total_points": 0
+            }
+        }
+    },
+    "attendance": {},
+    "races_history": [],
+    "calendar": [],
+    "records": {}
+}
